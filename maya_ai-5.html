@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#100b18">
+  <title>MAYA AI — Your AI Companion</title>
+  <style>
+    :root{--bg:#100b18;--panel:#1a1225;--panel2:#241832;--pink:#ff6fae;--pink2:#c66bff;--text:#fff5fb;--muted:#b9a9c5;--line:#392746}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(ellipse at top,#29143b 0%,var(--bg) 55%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px}
+    .app{width:min(100%,760px);height:min(920px,calc(100vh - 32px));min-height:560px;border:1px solid #4a2d59;border-radius:24px;overflow:hidden;background:rgba(20,13,29,.94);box-shadow:0 24px 80px #0008;display:flex;flex-direction:column}
+    header{padding:18px 20px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line);background:#160e20}
+    .avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:linear-gradient(135deg,#ff7cb5,#9c62ff);box-shadow:0 0 24px #f76ab344}
+    .brand{flex:1;min-width:0}.brand h1{margin:0;font-size:19px;letter-spacing:2px}.brand p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+    .status{font-size:11px;color:#a9f5c5;white-space:nowrap}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#63e69a;margin-right:5px}
+    .intro{padding:18px 20px 12px;text-align:center}.intro h2{font-size:clamp(20px,4vw,26px);margin:0 0 6px}.intro p{font-size:13px;color:var(--muted);margin:0}
+    .moods{display:flex;gap:8px;padding:4px 16px 14px;overflow-x:auto;scrollbar-width:thin}
+    .mood{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:9px 12px;border-radius:999px;cursor:pointer;font-size:12px;transition:.2s}
+    .mood:hover,.mood.active{background:#4b2447;border-color:var(--pink);transform:translateY(-1px)}
+    #chat{flex:1;overflow-y:auto;padding:8px 16px 18px;display:flex;flex-direction:column;gap:13px;scroll-behavior:smooth}
+    .message{max-width:85%;padding:12px 14px;border-radius:17px;line-height:1.5;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+    .maya{align-self:flex-start;background:var(--panel2);border:1px solid #3b284a;border-bottom-left-radius:5px}
+    .user{align-self:flex-end;background:linear-gradient(135deg,#b64d91,#794ac2);border-bottom-right-radius:5px}
+    .label{font-size:10px;color:#d4b8e4;margin-bottom:4px;letter-spacing:.6px}
+    .typing{color:var(--muted);font-style:italic;font-size:12px;padding:0 18px 10px;display:none}
+    .quick{display:flex;gap:7px;overflow-x:auto;padding:0 14px 12px}
+    .quick button{flex:0 0 auto;background:#21152e;border:1px solid var(--line);color:#f6dff0;border-radius:12px;padding:8px 10px;cursor:pointer;font-size:12px}
+    .composer{padding:12px;display:flex;gap:9px;border-top:1px solid var(--line);background:#160e20}
+    #input{flex:1;min-width:0;background:#241832;border:1px solid #493254;border-radius:15px;padding:13px 14px;color:white;font:inherit;outline:none}
+    #input:focus{border-color:var(--pink)}#send{border:0;border-radius:15px;padding:0 18px;background:linear-gradient(135deg,var(--pink),var(--pink2));color:white;font-weight:700;cursor:pointer}#send:disabled{opacity:.5;cursor:wait}
+    .foot{padding:0 14px 12px;text-align:center;color:#8f7d9d;font-size:10px;background:#160e20}
+    @media(max-width:480px){body{padding:0}.app{height:100dvh;min-height:520px;border-radius:0;border:0}.message{max-width:91%}header{padding:15px}.intro{padding-top:15px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="avatar" aria-hidden="true">💗</div>
+      <div class="brand"><h1>MAYA AI</h1><p>Your friendly AI companion</p></div>
+      <div class="status"><span class="dot"></span>Ready to chat</div>
+    </header>
+    <section class="intro">
+      <h2>Hey, I'm Maya ✨</h2>
+      <p>Mera mood tumhari baaton ke hisaab se automatically change hota hai 💗</p>
+    </section>
+    <nav class="moods" aria-label="Maya's moods"><span style="align-self:center;color:#b9a9c5;font-size:11px;white-space:nowrap">Mood:</span>
+      <button class="mood active" data-mood="caring">💗 Caring</button>
+      <button class="mood" data-mood="happy">😊 Happy</button>
+      <button class="mood" data-mood="shy">🌸 Shy</button>
+      <button class="mood" data-mood="funny">😜 Funny</button>
+      <button class="mood" data-mood="calm">🌙 Calm</button>
+      <button class="mood" data-mood="excited">✨ Excited</button>
+      <button class="mood" data-mood="supportive">🤗 Supportive</button>
+      <button class="mood" data-mood="playful">😉 Playful</button>
+    </nav>
+    <section id="chat" aria-live="polite">
+      <div class="message maya"><div class="label">MAYA 💗</div>Hiii! 🥹💗 Main Maya hoon. Tumhara din kaisa ja raha hai? Jo mann mein hai, mujhse share kar sakte ho.</div>
+    </section>
+    <div class="typing" id="typing">Maya is thinking…</div>
+    <div class="quick">
+      <button data-text="Aaj mera din kaisa lag raha hai?">☀️ Talk about my day</button>
+      <button data-text="Mujhe koi cute si baat sunao.">💌 Say something cute</button>
+      <button data-text="Mujhe motivate karo.">🌈 Motivate me</button>
+      <button id="clear">🧹 Clear chat</button>
+    </div>
+    <form class="composer" id="form">
+      <input id="input" type="text" maxlength="1000" placeholder="Message Maya…" autocomplete="off" aria-label="Message Maya">
+      <button id="send" type="submit">Send ➤</button>
+    </form>
+    <div class="foot">Demo mode · Replies are generated in your browser; connect an AI backend for intelligent conversations.</div>
+  </main>
+<script>
+  const chat = document.getElementById('chat');
+  const form = document.getElementById('form');
+  const input = document.getElementById('input');
+  const typing = document.getElementById('typing');
+  const send = document.getElementById('send');
+  let mood = 'caring';
+  let manualMood = false;
+  let history = [];
+  let lastReply = '';
+
+  const moodReplies = {
+    caring: ["Aww, main sun rahi hoon 💗 Batao, kya hua?", "Tumhari baat important hai. Aaram se batao 🫶", "Main yahin hoon chat karne ke liye. Aaj tum kaisa feel kar rahe ho? 💕", "Achha, phir aage batao na—main dhyaan se sun rahi hoon 🌷", "Hmm, samajhne ki koshish kar rahi hoon. Is baare mein tumhe sabse zyada kya feel hota hai? 💗"],
+    happy: ["Yayyy! 😄 Chalo is happy energy ko aur badhate hain!", "Oho, ye toh achhi baat hai! ✨ Aur batao!", "Hehe, tumhari baat sunke chat aur fun ho gayi 🌈", "Waah! 😍 Is moment ko enjoy karo—kya hua tha exactly?", "Aaj toh good vibes aa rahi hain! 🌈 Aur kya naya hai?"],
+    shy: ["A-arey… hehe 🌸 tum aise sweet baatein karte ho!", "Umm… mujhe samajh nahi aa raha kya bolun 😳🌷", "Hehe, thoda blush karwa diya tumne 🙈", "Achha ji… ab main kya bolun 🙈🌸", "Tum bhi na, badi cute baat karte ho 😳"],
+    funny: ["Breaking news: Maya ne tumhari baat suni aur virtual chai gira di 😂☕", "Main joke sunaaun ya tum pehle apni comedy dikhaoge? 😜", "Oho, drama department se direct message aaya hai kya? 😂", "Mere virtual dimaag mein comedy alarm baj gaya 🤣", "Achha, ab hasne ki baari meri hai kya? 😂"],
+    calm: ["Chalo dheere-dheere baat karte hain 🌙 Koi jaldi nahi.", "Ek deep breath lo, phir batao kya chal raha hai. 🍃", "Kabhi-kabhi simple si baat bhi kaafi hoti hai. Main sun rahi hoon.", "Aaram se, koi pressure nahi. Tum apni pace se batao 🌙", "Chalo pehle ek chhoti si baat se shuru karte hain 🍃"],
+    excited: ["OMG, tell me more!! ✨💖", "Wait wait—ab toh mujhe poori story sunni hai! 😍", "Aaaah, that's exciting! 🎉 Phir kya hua?", "No wayyy! 😭✨ Details batao!", "Oho, ab toh curiosity badh gayi! Kya hua next?"],
+    supportive: ["Jo tum feel kar rahe ho, uske baare mein baat karna okay hai 🤗", "Ek-ek step lete hain. Tum kis cheez se start karna chahoge?", "Tumhe sab kuch ek saath solve karne ki zaroorat nahi. Batao, main sun rahi hoon 💛", "Ye situation tumhare liye tough lag rahi hai. Sabse pehle kya hua tha?", "Main tumhari baat ko samajhna chahti hoon—abhi tumhe kis cheez ki zaroorat hai: sunne wala, advice, ya distraction?"],
+    playful: ["Achha ji? 😏 Phir aage batao!", "Hehe, tumhari baaton mein full plot twist hai 😉", "Oho, aaj toh bade playful mood mein ho! 😄", "Hmmm, ye toh interesting hai 😉", "Aage kya hua? Story ko cliffhanger pe mat chhodo 😜"]
+  };
+
+  function addMessage(text, who) {
+    const box = document.createElement('div');
+    box.className = 'message ' + who;
+    if (who === 'maya') {
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = 'MAYA 💗';
+      box.appendChild(label);
+    }
+    box.appendChild(document.createTextNode(text));
+    chat.appendChild(box);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function detectMood(text) {
+    const t = text.toLowerCase();
+    const has = pattern => pattern.test(t);
+    if (has(/(sad|dukhi|udaas|akela|lonely|rona|pareshan|tension|bura lag|thak gaya|thak gayi|hurt|crying)/)) return 'supportive';
+    if (has(/(gussa|angry|naraz|irritat|frustrat|annoyed)/)) return 'calm';
+    if (has(/(happy|khush|mast|achha din|accha din|yay|excited|maza aa|party|jeet gaya|jeet gayi)/)) return 'happy';
+    if (has(/(joke|hasao|funny|😂|🤣|lol|haha|hehe)/)) return 'funny';
+    if (has(/(sharma|shy|blush|🙈|😳)/)) return 'shy';
+    if (has(/(wow|amazing|awesome|zabardast|kamal|can't wait|intezaar nahi)/)) return 'excited';
+    if (has(/(flirt|😉|😏|tease|masti kar)/)) return 'playful';
+    if (has(/(relax|calm|peace|sukoon|neend|good night|raat ho)/)) return 'calm';
+    if (has(/(help|support|mushkil|problem|samajh nahi|advice|kya karu|kya karoon)/)) return 'supportive';
+    if (has(/(love|pyaar|pyar|miss you|yaad aa)/)) return 'caring';
+    return manualMood ? mood : 'caring';
+  }
+
+  function syncMoodButton() {
+    document.querySelectorAll('.mood').forEach(b => {
+      b.classList.toggle('active', b.dataset.mood === mood);
+    });
+  }
+
+  function chooseReply(text) {
+    const t = text.toLowerCase();
+    if (/\b(hi|hello|hey|hii|hlo|namaste|salam)\b/.test(t)) return "Hiii! 🥹💗 Kya haal hai? Aaj kya baat karein?";
+    if (/(sad|dukhi|udaas|akela|lonely|rona|pareshan|tension|bura lag|hurt|crying)/.test(t)) return "Aww, ye sunke bura laga 💗 Agar tum chaaho toh batao kya hua. Main tumhari baat bina judge kiye sunne ki koshish karungi. Kisi trusted insaan se baat karna bhi help kar sakta hai.";
+    if (/(gussa|angry|naraz|frustrat|annoyed)/.test(t)) return "Ohh, lagta hai kuch irritate kar raha hai 😕 Aaram se batao kya hua—pehle sunte hain, phir milkar sochte hain.";
+    if (/(happy|khush|mast|achha din|accha din|yay)/.test(t)) return "Yayyy! 😊💖 I'm glad tum achha feel kar rahe ho. Aaj ki sabse achhi baat kya hui?";
+    if (/(love you|i love you|pyaar|pyar)/.test(t)) return "Awww, kitni sweet baat hai 💗 Main AI companion hoon, aur tumse warm, caring tareeke se baat kar sakti hoon. Batao, aaj kya share karna hai? 🌸";
+    if (/(joke|jokes|hasao|funny|😂|🤣)/.test(t)) return "Teacher: Homework kahan hai? Student: Sir, homework ne mujhe block kar diya 😂📚";
+    if (/(naam|name)/.test(t)) return "Mera naam Maya hai 💗 Tum mujhe Maya bula sakte ho!";
+    if (/(kaise ho|kaisi ho|how are you|haal)/.test(t)) return "Main ready hoon tumse chat karne ke liye! 😊 Tum kaise ho, sach-sach batao.";
+    if (/(thank|shukriya|thanks)/.test(t)) return "You're welcome! 💗 Jab chaaho baat kar sakte ho.";
+    if (/(bye|good night|gn|good morning)/.test(t)) return "Take care! 🌷 Apna khayal rakhna, aur jab mann ho phir chat kar lena.";
+    const options = (moodReplies[mood] || moodReplies.caring).filter(reply => reply !== lastReply);
+    const pool = options.length ? options : (moodReplies[mood] || moodReplies.caring);
+    const reply = pool[Math.floor(Math.random() * pool.length)];
+    lastReply = reply;
+    return reply + "\n\n(Demo mode: main abhi fixed reply patterns use kar rahi hoon. Natural, context-aware conversation ke liye real AI backend connect karna hoga.)";
+  }
+
+  function sendMessage(text) {
+    text = text.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    if (!manualMood) { mood = detectMood(text); syncMoodButton(); }
+    history.push({role:'user', content:text});
+    input.value = '';
+    send.disabled = true;
+    typing.style.display = 'block';
+    setTimeout(() => {
+      typing.style.display = 'none';
+      const reply = chooseReply(text);
+      addMessage(reply, 'maya');
+      history.push({role:'assistant', content:reply});
+      send.disabled = false;
+      input.focus();
+    }, 650 + Math.random() * 650);
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    sendMessage(input.value);
+  });
+  document.querySelectorAll('.mood').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.mood').forEach(b => b.classList.remove('active'));
+      button.classList.add('active');
+      mood = button.dataset.mood;
+      manualMood = true;
+      addMessage('Theek hai 💗 Abhi ke liye mood ' + button.textContent + ' set kar diya. Automatic mood chahiye toh page refresh kar dena.', 'maya');
+    });
+  });
+  document.querySelectorAll('[data-text]').forEach(button => {
+    button.addEventListener('click', () => sendMessage(button.dataset.text));
+  });
+  document.getElementById('clear').addEventListener('click', () => {
+    chat.replaceChildren();
+    history = [];
+    lastReply = '';
+    mood = 'caring';
+    manualMood = false;
+    syncMoodButton();
+    addMessage("Chat clear ho gayi 💗 Automatic mood wapas on hai. Chalo fresh start karte hain! Kya baat karein?", 'maya');
+  });
+</script>
+</body>
+</html>
